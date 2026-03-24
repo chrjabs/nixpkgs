@@ -70,6 +70,6 @@ in
         nativeBuildInputs = [ pkgs.nixfmt ];
       }
       ''
-        cat "$unformatted" | nixfmt > "$out"
+        cat "$unformatted" | nixfmt - > "$out"
       '';
 }

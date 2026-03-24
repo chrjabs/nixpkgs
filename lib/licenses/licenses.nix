@@ -1034,6 +1034,11 @@ lib.mapAttrs mkLicense (
       fullName = "LaTeX Project Public License v1.0";
     };
 
+    lppl11 = {
+      spdxId = "LPPL-1.1";
+      fullName = "LaTeX Project Public License v1.1";
+    };
+
     lppl12 = {
       spdxId = "LPPL-1.2";
       fullName = "LaTeX Project Public License v1.2";
@@ -1042,6 +1047,11 @@ lib.mapAttrs mkLicense (
     lppl13a = {
       spdxId = "LPPL-1.3a";
       fullName = "LaTeX Project Public License v1.3a";
+    };
+
+    lppl13b = {
+      spdxId = "LPPL-1.3b";
+      fullName = "LaTeX Project Public License v1.3b";
     };
 
     lppl13c = {

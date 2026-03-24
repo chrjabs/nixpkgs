@@ -126,6 +126,7 @@ let
     "velthuis"
     "vlna"
     "web"
+    "xdvipsk"
     "xml2pmx"
   ];
   coreBigPackages = [
@@ -141,16 +142,9 @@ let
   binPackages = lib.getAttrs (corePackages ++ coreBigPackages) tlpdb;
 
   common = {
-    # initial TeX Live 2025 release
-    # src = fetchurl {
-    #   url = "mirror://texhistoric/systems/texlive/${year}/texlive-${year}0308-source.tar.xz";
-    #   hash = "sha256-//2xo9FDwXekOYoiKaQNaojxgJjl9tz9V2SMnyQXSQ8=";
-    # };
-
-    # 2025.2 update
     src = fetchurl {
-      url = "https://github.com/TeX-Live/texlive-source/archive/refs/tags/svn74917.tar.gz";
-      hash = "sha256-QgUN5LOFeD6Jt0ENF6Uwi516D8PH+TXZ+MCO8bCTHqE=";
+      url = "https://github.com/TeX-Live/texlive-source/archive/refs/tags/svn78399.tar.gz";
+      hash = "sha256-8oNzySdgIot5u5mZTU39qgoUP9nvj3i2cGrKU/DWARQ=";
     };
 
     prePatch = ''
@@ -184,7 +178,6 @@ let
       "--disable-texlive" # do not build the texlive (TeX Live scripts) package
       "--disable-linked-scripts" # do not install the linked scripts
       "-C" # use configure cache to speed up
-      "CFLAGS=-std=gnu17" # fix build with gcc15
     ]
     ++ withSystemLibs [
       # see "from TL tree" vs. "Using installed"  in configure output
@@ -198,6 +191,9 @@ let
       "libpng"
       "libpaper"
       "zlib"
+      "harfbuzz"
+      "icu"
+      "graphite2"
     ]
     ++ lib.optional (
       stdenv.hostPlatform != stdenv.buildPlatform
@@ -288,13 +284,17 @@ rec {
       libpaper
       zlib
       perl
+      # web2c now requires harfbuzz, graphite2, and ICU
+      harfbuzzFull
+      graphite2
+      icu
     ];
 
     hardeningDisable = [ "format" ];
 
     preConfigure = ''
       rm -r libs/{cairo,freetype2,gd,gmp,graphite2,harfbuzz,icu,libpaper,libpng} \
-        libs/{lua53,luajit,mpfr,pixman,pplib,teckit,zlib,zziplib} \
+        libs/{mpfr,pixman,pplib,teckit,zlib,zziplib} \
         texk/{bibtex-x,chktex,dvipng,dvisvgm,upmendex,xdvik} \
         utils/{asymptote,texdoctk,xindy,xpdfopen}
       mkdir WorkDir
@@ -352,7 +352,7 @@ rec {
       ''
       # remove broken symlinks
       + ''
-        rm "$out"/bin/{eptex,ptex,uptex}
+        rm "$out"/bin/{eptex,uptex}
         rm "${placeholder "ptex"}"/bin/{pbibtex,pdvitype,ppltotf,ptftopl}
       '';
 
@@ -419,9 +419,6 @@ rec {
     buildInputs = core.buildInputs ++ [
       core
       cairo
-      harfbuzzFull
-      icu
-      graphite2
       libx11
       potrace
     ];
@@ -454,9 +451,6 @@ rec {
         "kpathsea"
         "ptexenc"
         "cairo"
-        "harfbuzz"
-        "icu"
-        "graphite2"
       ]
       ++
         map (prog: "--disable-${prog}") # don't build things we already have
@@ -544,8 +538,8 @@ rec {
   # https://github.com/gucci-on-fleek/context-packaging
   context =
     let
-      version = "2.11.08";
-      level = "20260217";
+      version = "2.11.09";
+      level = "20260705";
     in
     stdenv.mkDerivation {
       pname = "luametatex";
@@ -650,7 +644,7 @@ rec {
 
   asymptote =
     let
-      version = "3.09";
+      version = "3.12";
     in
     args.asymptote.overrideAttrs (
       finalAttrs: prevAttrs: {
@@ -663,7 +657,7 @@ rec {
         # so that top level updates do not break texlive
         src = fetchurl {
           url = "mirror://sourceforge/asymptote/${finalAttrs.version}/asymptote-${finalAttrs.version}.src.tgz";
-          hash = "sha256-unM6mfyq8MCajo8wtG/ksr4E6mQNK/A03gGIa9Fxeuc=";
+          hash = "sha256-6uwel0Y+8hOjk8OI1GanNHiwgY+UA8liuRJAZZybjxs=";
         };
 
         texContainer = texlive.pkgs.asymptote.tex;
