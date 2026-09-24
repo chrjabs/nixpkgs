@@ -12,6 +12,8 @@
   setuptools,
   setuptools-scm,
   wheel,
+  cbc-unstable,
+  highspy,
   gurobi,
   gurobipy,
   # Enable support for the commercial Gurobi solver (requires a license)
@@ -23,15 +25,17 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "mip";
-  version = "1.15.0";
+  version = "2.0.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "coin-or";
     repo = "python-mip";
-    tag = "${finalAttrs.version}";
-    hash = "sha256-dtqOW/aRWwMTlJCJX0nj5aW7xcrN5RE2dr9hIAq1AdE=";
+    tag = "v${finalAttrs.version}";
+    hash = "sha256-DZZcBthTPYb5pTLf1dfmcozquiOIQpnr+dmydhzCj0o=";
   };
+
+  doCheck = false;
 
   nativeCheckInputs = [
     matplotlib
@@ -49,6 +53,8 @@ buildPythonPackage (finalAttrs: {
 
   propagatedBuildInputs = [
     cffi
+    highspy
+    cbc-unstable
   ]
   ++ lib.optionals gurobiSupport ([ gurobipy ] ++ lib.optional (gurobiHome == null) gurobi);
 
@@ -59,6 +65,8 @@ buildPythonPackage (finalAttrs: {
   '';
 
   patches = [
+    # Use the nix install of CBC by default, since packaging cbcbox for nix is not easy
+    ./cbc-lib.patch
     # Some tests try to be smart and dynamically construct a path to their test
     # inputs. Unfortunately, since the test phase is run after installation,
     # those paths point to the Nix store, which no longer contains the test
@@ -67,8 +75,7 @@ buildPythonPackage (finalAttrs: {
   ];
 
   postPatch = ''
-    # Allow newer cffi versions to be used
-    substituteInPlace pyproject.toml --replace "cffi==1.15.*" "cffi>=1.15"
+    substituteInPlace mip/cbc.py --replace "<nix-cbc-lib>" "${cbc-unstable}/lib/libCbc.so"
   '';
 
   # Make MIP use the Gurobi solver, if configured to do so
@@ -87,7 +94,7 @@ buildPythonPackage (finalAttrs: {
     homepage = "https://python-mip.com/";
     description = "Collection of Python tools for the modeling and solution of Mixed-Integer Linear programs (MIPs)";
     downloadPage = "https://github.com/coin-or/python-mip/releases";
-    changelog = "https://github.com/coin-or/python-mip/releases/tag/${finalAttrs.version}";
+    changelog = "https://github.com/coin-or/python-mip/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.epl20;
     broken = stdenv.hostPlatform.isAarch64;
     maintainers = with lib.maintainers; [

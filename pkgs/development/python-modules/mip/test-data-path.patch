@@ -1,8 +1,8 @@
 diff --git a/examples/extract_features_mip.py b/examples/extract_features_mip.py
-index cdc109f..90e79fa 100644
+index cdc109f22a..90e79fad62 100644
 --- a/examples/extract_features_mip.py
 +++ b/examples/extract_features_mip.py
-@@ -9,9 +9,7 @@ import mip
+@@ -9,9 +9,7 @@
  lp_path = ""
  
  #  using test data, replace with your instance
@@ -14,11 +14,11 @@ index cdc109f..90e79fa 100644
  m = Model()
  if m.solver_name.upper() in ["GRB", "GUROBI"]:
 diff --git a/examples/gen_cuts_mip.py b/examples/gen_cuts_mip.py
-index f71edae..2799734 100644
+index 71966db9c6..b53c824746 100644
 --- a/examples/gen_cuts_mip.py
 +++ b/examples/gen_cuts_mip.py
-@@ -11,9 +11,7 @@ import mip
- lp_path = ""
+@@ -9,9 +9,7 @@
+ import mip
  
  #  using test data
 -lp_path = mip.__file__.replace("mip/__init__.py", "test/data/1443_0-9.lp").replace(
@@ -27,4 +27,17 @@ index f71edae..2799734 100644
 +lp_path = "test/data/1443_0-9.lp"
  
  m = Model()
- if m.solver_name.upper() in ["GRB", "GUROBI"]:
+ if m.solver_name.upper() != mip.CBC:
+diff --git a/test/mip_files_test.py b/test/mip_files_test.py
+index f7dc481582..42ec707948 100644
+--- a/test/mip_files_test.py
++++ b/test/mip_files_test.py
+@@ -97,7 +97,7 @@
+     SOLVERS += [HIGHS]
+ 
+ # check availability of test data
+-DATA_DIR = join(join(dirname(mip.__file__)[0:-3], "test"), "data")
++DATA_DIR = "test/data"
+ 
+ 
+ print("DATA")
