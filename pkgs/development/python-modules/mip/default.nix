@@ -88,6 +88,9 @@ buildPythonPackage rec {
     changelog = "https://github.com/coin-or/python-mip/releases/tag/${version}";
     license = lib.licenses.epl20;
     broken = stdenv.hostPlatform.isAarch64;
-    maintainers = with lib.maintainers; [ nessdoor ];
+    maintainers = with lib.maintainers; [
+      nessdoor
+      chrjabs
+    ];
   };
 }
