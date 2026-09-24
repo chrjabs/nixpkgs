@@ -4,7 +4,7 @@
   buildPythonPackage,
   cffi,
   dos2unix,
-  fetchPypi,
+  fetchFromGitHub,
   matplotlib,
   networkx,
   numpy,
@@ -26,9 +26,11 @@ buildPythonPackage (finalAttrs: {
   version = "1.15.0";
   pyproject = true;
 
-  src = fetchPypi {
-    inherit (finalAttrs) pname version;
-    hash = "sha256-f28Dgc/ixSwbhkAgPaLLVpdLJuI5UN37GnazfZFvGX4=";
+  src = fetchFromGitHub {
+    owner = "coin-or";
+    repo = "python-mip";
+    tag = "${finalAttrs.version}";
+    hash = "sha256-dtqOW/aRWwMTlJCJX0nj5aW7xcrN5RE2dr9hIAq1AdE=";
   };
 
   nativeCheckInputs = [
