@@ -5,6 +5,7 @@
   cffi,
   dos2unix,
   fetchFromGitHub,
+  fetchpatch,
   matplotlib,
   networkx,
   numpy,
@@ -65,6 +66,11 @@ buildPythonPackage (finalAttrs: {
   '';
 
   patches = [
+    (fetchpatch {
+      name = "fix-duplicate-variables.patch";
+      url = "https://github.com/coin-or/python-mip/pull/429/commits/b49be89dc413a249800be17b0d0eebf4e034790c.patch";
+      hash = "sha256-10f7Uy7BX6Y5/WBVQZ6ZokgIxUvQ8eRM6SA4ODM5MTk=";
+    })
     # Use the nix install of CBC by default, since packaging cbcbox for nix is not easy
     ./cbc-lib.patch
     # Some tests try to be smart and dynamically construct a path to their test
