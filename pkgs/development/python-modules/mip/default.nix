@@ -57,7 +57,9 @@ buildPythonPackage (finalAttrs: {
     highspy
     cbc-unstable
   ]
-  ++ lib.optionals gurobiSupport ([ gurobipy ] ++ lib.optional (gurobiHome == null) gurobi);
+  ++ lib.optionals gurobiSupport (
+    [ gurobipy ] ++ lib.optional (gurobiHome == null && stdenv.hostPlatform.isLinux) gurobi
+  );
 
   # Source files have CRLF terminators, which make patch error out when supplied
   # with diffs made on *nix machines
@@ -80,14 +82,18 @@ buildPythonPackage (finalAttrs: {
     ./test-data-path.patch
   ];
 
-  postPatch = ''
-    substituteInPlace mip/cbc.py --replace "<nix-cbc-lib>" "${cbc-unstable}/lib/libCbc.so"
-  '';
+  postPatch =
+    let
+      suffix = if stdenv.hostPlatform.isLinux then "so" else "dylib";
+    in
+    ''
+      substituteInPlace mip/cbc.py --replace "<nix-cbc-lib>" "${cbc-unstable}/lib/libCbc.${suffix}"
+    '';
 
   # Make MIP use the Gurobi solver, if configured to do so
-  makeWrapperArgs = lib.optional gurobiSupport "--set GUROBI_HOME ${
-    if gurobiHome == null then gurobi.outPath else gurobiHome
-  }";
+  makeWrapperArgs =
+    lib.optional (gurobiSupport && stdenv.hostPlatform.isLinux)
+      "--set GUROBI_HOME ${if gurobiHome == null then gurobi.outPath else gurobiHome}";
 
   # Tests that rely on Gurobi are activated only when Gurobi support is enabled
   disabledTests = lib.optional (!gurobiSupport) "gurobi";
@@ -102,7 +108,6 @@ buildPythonPackage (finalAttrs: {
     downloadPage = "https://github.com/coin-or/python-mip/releases";
     changelog = "https://github.com/coin-or/python-mip/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.epl20;
-    broken = stdenv.hostPlatform.isAarch64;
     maintainers = with lib.maintainers; [
       nessdoor
       chrjabs
